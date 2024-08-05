@@ -1,71 +1,172 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>静</title>
+    <title>石头剪刀布</title>
     <style>
         body {
-            margin: 0;
-            height: 100vh;
-            overflow: hidden;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #000;
-            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #71b7e6, #9b59b6);
+            color: white;
         }
 
-        #canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+        .container {
+            text-align: center;
         }
 
-        .glitch {
+        .buttons button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
             position: relative;
-            color: #00ffea;
-            font-size: 10vw;
-            font-weight: bold;
-            text-transform: uppercase;
-            animation: glitch 1s infinite;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            transition: transform 0.2s;
         }
 
-        .glitch::before,
-        .glitch::after {
-            content: "静";
+        .buttons button:hover {
+            transform: scale(1.1);
+        }
+
+        .buttons button span {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: inherit;
+            width: 200%;
+            height: 200%;
+            top: -100%;
+            left: -100%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: top 0.5s, left 0.5s;
+            border-radius: 50%;
         }
 
-        .glitch::before {
-            left: 2px;
-            text-shadow: -2px 0 red;
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch 2s infinite linear alternate-reverse;
+        .buttons button:hover span {
+            top: 100%;
+            left: 100%;
         }
 
-        .glitch::after {
-            left: -2px;
-            text-shadow: -2px 0 blue;
-            clip: rect(85px, 450px, 140px, 0);
-            animation: glitch 1.5s infinite linear alternate-reverse;
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        @keyframes glitch {
-            0% {
-                text-shadow: 2px 2px #00ffea, -2px -2px #00ffea;
+        .choice {
+            display: inline-block;
+            padding: 10px;
+            margin: 0 10px;
+            font-size: 24px;
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
             }
             25% {
-                text-shadow: -2px -2px #00ffea, 2px 2px #00ffea;
+                transform: translateX(-5px);
             }
-            50% {
-                text-shadow: 2px -2px #00ffea, -2px 2px #00ffea;
-           
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .winner {
+            color: #4CAF50;
+            font-size: 28px;
+            animation: winner 0.5s ease-in-out infinite alternate;
+        }
+
+        .loser {
+            color: #F44336;
+            font-size: 28px;
+            animation: loser 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes winner {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        @keyframes loser {
+            0% { transform: scale(1); }
+            100% { transform: scale(0.9); }
+        }
+
+        .tie {
+            color: #FFEB3B;
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>一个石头剪刀布小游戏</h1>
+        <h6>嘻嘻，你一定赢不了我！</h6>
+        <div class="buttons">
+            <button id="石头">石头<span></span></button>
+            <button id="剪刀">剪刀<span></span></button>
+            <button id="布">布<span></span></button>
+        </div>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('石头').addEventListener('click', () => playGame('石头'));
+        document.getElementById('剪刀').addEventListener('click', () => playGame('剪刀'));
+        document.getElementById('布').addEventListener('click', () => playGame('布'));
+
+        function playGame(playerChoice) {
+            const choices = ['石头', '剪刀', '布'];
+            const computerChoice = playerChoice === '石头' ? '布' : playerChoice === '剪刀' ? '石头' : '剪刀';
+            //const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result = '';
+            let playerClass = '';
+            let computerClass = '';
+
+            if (playerChoice === computerChoice) {
+                result = `平局! 都出了 ${playerChoice}`;
+                playerClass = 'tie';
+                computerClass = 'tie';
+            } else if (
+                (playerChoice === '石头' && computerChoice === '剪刀') ||
+                (playerChoice === '剪刀' && computerChoice === '布') ||
+                (playerChoice === '布' && computerChoice === '石头')
+            ) {
+                result = `你赢了! ${playerChoice} 打败了 ${computerChoice}`;
+                playerClass = 'winner';
+                computerClass = 'loser';
+            } else {
+                result = `你输了! ${computerChoice} 打败了 ${playerChoice}`;
+                playerClass = 'loser';
+                computerClass = 'winner';
+            }
+
+            displayResult(playerChoice, computerChoice, result, playerClass, computerClass);
+        }
+
+        function displayResult(playerChoice, computerChoice, result, playerClass, computerClass) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="choice ${playerClass}">${playerChoice}</div> vs 
+                <div class="choice ${computerClass}">${computerChoice}</div>
+            `;
+            setTimeout(() => {
+                resultDiv.innerHTML = result;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
