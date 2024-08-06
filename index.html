@@ -14,13 +14,20 @@
             margin: 0;
             background: linear-gradient(135deg, #71b7e6, #9b59b6);
             color: white;
+            transition: background 1s;
         }
 
         .container {
             text-align: center;
         }
 
-        .buttons button {
+        .buttons, .difficulty {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .buttons button, .difficulty button {
             margin: 10px;
             padding: 15px 30px;
             font-size: 18px;
@@ -31,14 +38,14 @@
             border: none;
             border-radius: 10px;
             color: white;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.2s;
         }
 
-        .buttons button:hover {
+        .buttons button:hover, .difficulty button:hover {
             transform: scale(1.1);
         }
 
-        .buttons button span {
+        .buttons button span, .difficulty button span {
             position: absolute;
             width: 200%;
             height: 200%;
@@ -49,9 +56,25 @@
             border-radius: 50%;
         }
 
-        .buttons button:hover span {
+        .buttons button:hover span, .difficulty button:hover span {
             top: 100%;
             left: 100%;
+        }
+
+        .buttons button.active, .difficulty button.active {
+            animation: pulse 1s;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
         }
 
         #result {
@@ -110,12 +133,23 @@
             color: #FFEB3B;
             font-size: 28px;
         }
+        .difficulty-level {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="difficulty-level" id="difficultyLevel">请选择难度</div>
         <h1>一个石头剪刀布小游戏</h1>
-        <div class="buttons">
+        <div class="difficulty">
+            <button id="easy" class="easy">简单<span></span></button>
+            <button id="normal" class="normal">普通<span></span></button>
+            <button id="hard" class="hard">地狱<span></span></button>
+        </div>
+        <div class="buttons" style="display: none;">
             <button id="石头">石头<span></span></button>
             <button id="剪刀">剪刀<span></span></button>
             <button id="布">布<span></span></button>
@@ -123,14 +157,66 @@
         <div id="result"></div>
     </div>
     <script>
+        let difficulty = 'normal';
+
+        document.getElementById('easy').addEventListener('click', () => setDifficulty('easy'));
+        document.getElementById('normal').addEventListener('click', () => setDifficulty('normal'));
+        document.getElementById('hard').addEventListener('click', () => setDifficulty('hard'));
+
+        function setDifficulty(level) {
+            difficulty = level;
+            document.querySelector('.difficulty').style.display = 'none';
+            document.querySelector('.buttons').style.display = 'block';
+            addEffect(level);
+            displayDifficulty(level);
+        }
+
+        function addEffect(level) {
+            const body = document.body;
+            if (level === 'easy') {
+                body.style.background = 'linear-gradient(135deg, #bab786, #8ba864)';
+            } else if (level === 'normal') {
+                body.style.background = 'linear-gradient(135deg, #aad8fd, #6976d0)';
+            } else if (level === 'hard') {
+                body.style.background = 'linear-gradient(135deg, #DDA0DD, #EE82EE';
+            }
+        }
+
+        function displayDifficulty(level) {
+            const difficultyLevelDiv = document.getElementById('difficultyLevel');
+            if (level === 'easy') {
+                difficultyLevelDiv.textContent = '当前难度：简单';
+            } else if (level === 'normal') {
+                difficultyLevelDiv.textContent = '当前难度：普通';
+            } else if (level === 'hard') {
+                difficultyLevelDiv.textContent = '当前难度：地狱';
+            }
+        }
+
         document.getElementById('石头').addEventListener('click', () => playGame('石头'));
         document.getElementById('剪刀').addEventListener('click', () => playGame('剪刀'));
         document.getElementById('布').addEventListener('click', () => playGame('布'));
 
         function playGame(playerChoice) {
             const choices = ['石头', '剪刀', '布'];
-            const computerChoice = playerChoice === '石头' ? '布' : playerChoice === '剪刀' ? '石头' : '剪刀';
-            //const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let computerChoice;
+            let randomtem=Math.random();
+            if (randomtem>0.5){
+                switch (difficulty) {
+                case 'easy':
+                    computerChoice = playerChoice === '石头' ? '剪刀' : playerChoice === '剪刀' ? '布' : '石头';
+                    break;
+                case 'normal':
+                    computerChoice = choices[Math.floor(Math.random() * choices.length)];
+                    break;
+                case 'hard':
+                    computerChoice = playerChoice === '石头' ? '布' : playerChoice === '剪刀' ? '石头' : '剪刀';
+                    break;
+            }
+            }else {
+                computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            }
+
             let result = '';
             let playerClass = '';
             let computerClass = '';
